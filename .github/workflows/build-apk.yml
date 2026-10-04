@@ -13,20 +13,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Force Create Android Structure
+    - name: Setup Project Structure
       run: |
-        # إنشاء مجلد app والمجلدات الداخلية بشكل إجباري
         mkdir -p app/src/main/java/com/fahd/aistudio
         mkdir -p app/src/main/res/layout
 
-        # إنشاء ملف إعدادات المشروع الرئيسي
         echo 'rootProject.name = "Fahd_Android_Project"' > settings.gradle.kts
         echo 'include(":app")' >> settings.gradle.kts
 
-        # إنشاء ملف build.gradle.kts الجذري
         echo 'plugins { id("com.android.application") version "8.2.0" apply false; id("org.jetbrains.kotlin.android") version "1.9.20" apply false }' > build.gradle.kts
 
-        # إنشاء ملف build.gradle.kts داخل مجلد app
         cat << 'EOF' > app/build.gradle.kts
         plugins {
             id("com.android.application")
@@ -58,7 +54,6 @@ jobs:
         }
         EOF
 
-        # نقل أي ملفات برمجية إن وجدت في الجذر إلى مجلد app مباشرة
         mv -f *.kt app/src/main/java/com/fahd/aistudio/ 2>/dev/null || true
         mv -f AndroidManifest.xml app/src/main/ 2>/dev/null || true
         mv -f activity_main.xml app/src/main/res/layout/ 2>/dev/null || true
@@ -69,8 +64,10 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle
+    - name: Setup Gradle (No Cache)
       uses: gradle/actions/setup-gradle@v3
+      with:
+        cache-disabled: true
 
     - name: Build Debug APK
       run: gradle assembleDebug
