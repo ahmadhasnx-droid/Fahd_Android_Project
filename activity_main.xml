@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="match_parent" android:layout_height="match_parent"
+ android:layoutDirection="rtl" android:fillViewport="true">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+  android:orientation="vertical" android:padding="20dp">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="فهد" android:textSize="32sp" android:textStyle="bold" android:gravity="center"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="محطة العمل والذكاء الاصطناعي" android:textSize="16sp" android:gravity="center" android:paddingBottom="20dp"/>
+  <EditText android:id="@+id/commandInput" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:hint="اكتب أمرك هنا..." android:inputType="textMultiLine" android:minLines="3" android:gravity="top|right"/>
+  <Button android:id="@+id/commandButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="تنفيذ الأمر" android:layout_marginTop="10dp"/>
+  <TextView android:id="@+id/resultText" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="جاهز." android:textSize="16sp" android:paddingTop="18dp"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="الصور • الفيديو • الموسيقى • الصوت • الترجمة • الدبلجة • الشخصيات • المشاريع • البحث"
+   android:textSize="14sp" android:paddingTop="24dp"/>
+ </LinearLayout>
+</ScrollView>
