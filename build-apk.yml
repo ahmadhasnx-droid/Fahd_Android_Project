@@ -1,21 +1,88 @@
-name: Build Fahd APK
+name: Build Android APK
+
 on:
-  workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Build APK
-        run: gradle --no-daemon assembleDebug
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Fahd-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Organize Android Project Structure Automatically
+      run: |
+        # إنشاء هيكلية مجلدات الأندرويد القياسية
+        mkdir -p app/src/main/java/com/fahd/aistudio app/src/main/res/layout app/src/main/res/values
+
+        # نقل ملفات البرمجة والواجهات إلى مكانها الصحيح إذا وجدت في الجذر
+        [ -f "MainActivity.kt" ] && mv MainActivity.kt app/src/main/java/com/fahd/aistudio/ || true
+        [ -f "CommandEngine.kt" ] && mv CommandEngine.kt app/src/main/java/com/fahd/aistudio/ || true
+        [ -f "CommandResult.kt" ] && mv CommandResult.kt app/src/main/java/com/fahd/aistudio/ || true
+        [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || true
+        [ -f "activity_main.xml" ] && mv activity_main.xml app/src/main/res/layout/ || true
+
+        # إنشاء ملفات الإعدادات الأساسية إذا لم تكن موجودة
+        if [ ! -f "settings.gradle.kts" ]; then
+          echo 'rootProject.name = "Fahd_Android_Project"' > settings.gradle.kts
+          echo 'include(":app")' >> settings.gradle.kts
+        fi
+
+        if [ ! -f "build.gradle.kts" ]; then
+          echo 'plugins { id("com.android.application") version "8.2.0" apply false; id("org.jetbrains.kotlin.android") version "1.9.20" apply false }' > build.gradle.kts
+        fi
+
+        if [ ! -f "app/build.gradle.kts" ]; then
+          cat << 'EOF' > app/build.gradle.kts
+          plugins {
+              id("com.android.application")
+              id("org.jetbrains.kotlin.android")
+          }
+          android {
+              namespace = "com.fahd.aistudio"
+              compileSdk = 34
+              defaultConfig {
+                  applicationId = "com.fahd.aistudio"
+                  minSdk = 24
+                  targetSdk = 34
+                  versionCode = 1
+                  versionName = "1.0"
+              }
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+          }
+          dependencies {
+              implementation("androidx.core:core-ktx:1.12.0")
+              implementation("androidx.appcompat:appcompat:1.6.1")
+              implementation("com.google.android.material:material:1.11.0")
+              implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+          }
+          EOF
+        fi
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build Debug APK
+      run: gradle assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+
